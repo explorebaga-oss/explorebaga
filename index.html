@@ -18,7 +18,7 @@
       padding: 20px;
       margin-bottom: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
+      max-width: 520px;
     }
 
     button {
@@ -32,11 +32,7 @@
       margin-top: 10px;
     }
 
-    button:hover {
-      background: #256628;
-    }
-
-    input {
+    input, select {
       padding: 8px;
       font-size: 16px;
       width: 100%;
@@ -58,85 +54,127 @@
 
 <body>
 
-  <!-- CARD EXPLORATOR -->
+  <!-- EXPLORATOR (ADAUGAT) -->
+  <div class="card">
+    <h3>👤 Explorator</h3>
+
+    <select id="exploratorSelect"></select>
+
+    <input type="text" id="exploratorNou" placeholder="explorator nou">
+
+    <button id="selectExploratorBtn">Selectează explorator</button>
+  </div>
+
+  <!-- CARD VECHI -->
   <div class="card">
     <h2>💳 Card ExploreBaga</h2>
-    <p><strong>Explorator:</strong> Fafi</p>
+    <p><strong>Explorator:</strong> <span id="exploratorNume">—</span></p>
     <p><strong>Sold curent:</strong> <span id="sold">0</span> €</p>
   </div>
 
-  <!-- ALIMENTARE AUTOMAT -->
+  <!-- ALIMENTARE VECHE -->
   <div class="card">
     <h3>📦 Alimentează automat</h3>
 
-    <label>Număr capsule introduse:</label>
+    <label>Număr capsule:</label>
     <input type="number" id="capsuleInput" placeholder="ex: 100">
 
     <button id="alimenteazaBtn">Introdu capsule</button>
 
     <p class="small">
       1 capsulă = 2 € <br>
-      Câștig explorator: 50% din valoare
+      Câștig explorator: 50%
     </p>
   </div>
 
-  <!-- ISTORIC -->
+  <!-- ISTORIC VECHI -->
   <div class="card">
     <h3>📜 Istoric alimentări</h3>
     <ul id="istoric"></ul>
   </div>
 
-  <!-- PAI - EXPLICAȚIE + VIITOR -->
+  <!-- INFO PAI -->
   <div class="card">
     <h3>🪙 Moneda Pai (VIITOR)</h3>
     <p class="small">
-      În acest moment, toate câștigurile sunt în <strong>EURO</strong>.
+      Câștigurile sunt în <strong>EURO</strong>.  
+      Pai va fi creată doar după îndeplinirea activităților reale ale cluburilor.
     </p>
-    <p class="small">
-      Moneda <strong>Pai</strong> va fi creată ulterior, exclusiv după
-      îndeplinirea activităților reale ale cluburilor ExploreBaga,
-      conform șabloanelor introduse de exploratori în automate.
-    </p>
-    <p class="small">
-      Pai nu este promisiune. Pai este <strong>rezultat</strong>.
-    </p>
-  </div>
-
-  <!-- STATUS ACTIVITĂȚI CLUB -->
-  <div class="card">
-    <h3>🏛️ Status activități club</h3>
-    <ul>
-      <li>Club Yoga – ⏳ neîndeplinit</li>
-      <li>Club Alergare – ⏳ neîndeplinit</li>
-      <li>Club Artă – ⏳ neîndeplinit</li>
-    </ul>
-  </div>
-
-  <!-- TERMENI SIMPLI -->
-  <div class="card">
-    <h3>📄 Reguli simple</h3>
-    <ul class="small">
-      <li>EURO = câștig real, instant</li>
-      <li>Exploratorul primește 50%</li>
-      <li>Cluburile trebuie să livreze activități reale</li>
-      <li>Pai apare doar după îndeplinire</li>
-      <li>Fără speculă, fără promisiuni</li>
-    </ul>
+    <p class="small"><strong>Pai = rezultat, nu promisiune.</strong></p>
   </div>
 
   <!-- SCRIPT -->
   <script>
-    let sold = 0; // EURO
-    const pretCapsula = 2; // € per capsulă
+    const pretCapsula = 2;
 
+    const exploratorSelect = document.getElementById('exploratorSelect');
+    const exploratorNou = document.getElementById('exploratorNou');
+    const selectExploratorBtn = document.getElementById('selectExploratorBtn');
+
+    const exploratorNumeSpan = document.getElementById('exploratorNume');
     const soldSpan = document.getElementById('sold');
     const capsuleInput = document.getElementById('capsuleInput');
     const alimenteazaBtn = document.getElementById('alimenteazaBtn');
     const istoricUl = document.getElementById('istoric');
 
-    alimenteazaBtn.onclick = () => {
-      const capsule = Number(capsuleInput.value);
+    // STRUCTURA VECHE + EXPLORATORI
+    let exploratori = JSON.parse(localStorage.getItem('explorebaga_exploratori')) || {};
+    let exploratorCurent = null;
 
+    function salveaza() {
+      localStorage.setItem('explorebaga_exploratori', JSON.stringify(exploratori));
+    }
+
+    function refreshSelect() {
+      exploratorSelect.innerHTML = '<option value="">— alege —</option>';
+      Object.keys(exploratori).forEach(nume => {
+        const opt = document.createElement('option');
+        opt.value = nume;
+        opt.textContent = nume;
+        exploratorSelect.appendChild(opt);
+      });
+    }
+
+    refreshSelect();
+
+    selectExploratorBtn.onclick = () => {
+      let nume = exploratorNou.value.trim() || exploratorSelect.value;
+
+      if (!nume) {
+        alert('Alege sau creează un explorator');
+        return;
+      }
+
+      if (!exploratori[nume]) {
+        exploratori[nume] = { sold: 0, istoric: [] };
+        salveaza();
+        refreshSelect();
+      }
+
+      exploratorCurent = nume;
+      incarcaExplorator();
+    };
+
+    function incarcaExplorator() {
+      const data = exploratori[exploratorCurent];
+      exploratorNumeSpan.textContent = exploratorCurent;
+      soldSpan.textContent = data.sold.toFixed(2);
+
+      istoricUl.innerHTML = '';
+      data.istoric.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = t;
+        istoricUl.appendChild(li);
+      });
+    }
+
+    alimenteazaBtn.onclick = () => {
+      if (!exploratorCurent) {
+        alert('Selectează un explorator');
+        return;
+      }
+
+      const capsule = Number(capsuleInput.value);
       if (!capsule || capsule <= 0) {
         alert('Introdu un număr valid de capsule');
         return;
@@ -145,20 +183,15 @@
       const valoare = capsule * pretCapsula;
       const castig = valoare * 0.5;
 
-      sold += castig;
-      soldSpan.textContent = sold.toFixed(2);
+      const data = exploratori[exploratorCurent];
+      data.sold += castig;
 
-      const li = document.createElement('li');
-      li.textContent =
+      const text =
         `Capsule: ${capsule} | Valoare: ${valoare} € | Câștig: ${castig} €`;
-      istoricUl.appendChild(li);
+      data.istoric.push(text);
 
-      alert(
-        `📦 Automat alimentat!\n\n` +
-        `Capsule: ${capsule}\n` +
-        `Valoare: ${valoare} €\n` +
-        `💳 Câștig pe card: ${castig} €`
-      );
+      salveaza();
+      incarcaExplorator();
 
       capsuleInput.value = '';
     };
