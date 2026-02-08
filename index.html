@@ -24,34 +24,45 @@
       <button id="scanBtn">🔍 Explorează în jur</button>
     </div>
 
-    <!-- REZULTATE -->
     <div class="card hidden" id="results"></div>
 
     <div class="card">
       <button id="clubsBtn">🎲 Cluburi ExploreBaga</button>
     </div>
+
+    <!-- CARD EXPLOREBAGA -->
+    <div class="card explore-card">
+      <h3>💳 Card ExploreBaga</h3>
+
+      <p><strong>Explorator:</strong> Fafi</p>
+      <p><strong>Acces:</strong> Alimentare automate ExploreBaga</p>
+      <p><strong>Câștig:</strong> 50% din valoarea capsulelor introduse</p>
+
+      <p><strong>Sold curent:</strong> <span id="balance">0</span> Pai</p>
+
+      <div class="card-actions">
+        <button id="loadMachineBtn">📦 Introdu capsule în automat</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    /* SERVICE WORKER – sigur */
-    if (
-      'serviceWorker' in navigator &&
-      (location.protocol === 'https:' || location.hostname === 'localhost')
-    ) {
+    /* SERVICE WORKER */
+    if ('serviceWorker' in navigator &&
+        (location.protocol === 'https:' || location.hostname === 'localhost')) {
       navigator.serviceWorker.register('service-worker.js');
     }
 
+    /* RADAR + EXPLORARE */
     const scanBtn = document.getElementById('scanBtn');
     const results = document.getElementById('results');
     const radar = document.getElementById('radar');
     const clubsBtn = document.getElementById('clubsBtn');
 
     scanBtn.onclick = () => {
-      // pornește radar
       radar.classList.remove('hidden');
       results.classList.add('hidden');
 
-      // după 2 secunde → afișează rezultate
       setTimeout(() => {
         radar.classList.add('hidden');
         results.classList.remove('hidden');
@@ -62,7 +73,6 @@
             <li>🧍 Andrei – Explorator urban <span>25 m</span></li>
             <li>🎨 Club: Desen liber în parc <span>120 m</span></li>
             <li>🏃 Club: Alergarea care te trezește <span>300 m</span></li>
-            <li>💡 Idee: Schimb de abilități locale</li>
           </ul>
           <p class="hint">(simulare Bluetooth / Wi-Fi Direct)</p>
         `;
@@ -70,7 +80,32 @@
     };
 
     clubsBtn.onclick = () => {
-      alert('🎲 Cluburi ExploreBaga – loteria cluburilor');
+      alert('🎲 Clubul zilei: Desen liber în parc');
+    };
+
+    /* CARD EXPLOREBAGA – PLATĂ INSTANT */
+    let balance = 0;
+
+    const balanceEl = document.getElementById('balance');
+    const loadMachineBtn = document.getElementById('loadMachineBtn');
+
+    loadMachineBtn.onclick = () => {
+      const capsules = 10;
+      const pricePerCapsule = 10;
+      const commissionRate = 0.5;
+
+      const totalValue = capsules * pricePerCapsule;
+      const payout = totalValue * commissionRate;
+
+      balance += payout;
+      balanceEl.textContent = balance.toFixed(2);
+
+      alert(
+        '📦 Automat alimentat!\n\n' +
+        `Capsule: ${capsules}\n` +
+        `Valoare: ${totalValue} Pai\n` +
+        `💳 Câștig instant: ${payout} Pai`
+      );
     };
   </script>
 </body>
