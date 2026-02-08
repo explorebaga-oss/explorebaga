@@ -1,0 +1,9 @@
+{
+  "name": "ExploreBaga",
+  "short_name": "ExploreBaga",
+  "start_url": "/explorebaga/",
+  "scope": "/explorebaga/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0a7a3d"
+}

@@ -6,17 +6,72 @@
   <title>ExploreBaga</title>
 
   <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <h1>🌍 ExploreBaga</h1>
-  <p>Aplicația ExploreBaga funcționează 🎉</p>
+  <div class="app">
+    <h1>🌍 ExploreBaga</h1>
+
+    <div class="card">
+      <p>Explorează oameni, cluburi și idei din jurul tău.</p>
+    </div>
+
+    <!-- RADAR -->
+    <div id="radar" class="radar hidden"></div>
+
+    <div class="card">
+      <button id="scanBtn">🔍 Explorează în jur</button>
+    </div>
+
+    <!-- REZULTATE -->
+    <div class="card hidden" id="results"></div>
+
+    <div class="card">
+      <button id="clubsBtn">🎲 Cluburi ExploreBaga</button>
+    </div>
+  </div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('Service Worker OK'))
-        .catch(err => console.error(err));
+    /* SERVICE WORKER – sigur */
+    if (
+      'serviceWorker' in navigator &&
+      (location.protocol === 'https:' || location.hostname === 'localhost')
+    ) {
+      navigator.serviceWorker.register('service-worker.js');
     }
+
+    const scanBtn = document.getElementById('scanBtn');
+    const results = document.getElementById('results');
+    const radar = document.getElementById('radar');
+    const clubsBtn = document.getElementById('clubsBtn');
+
+    scanBtn.onclick = () => {
+      // pornește radar
+      radar.classList.remove('hidden');
+      results.classList.add('hidden');
+
+      // după 2 secunde → afișează rezultate
+      setTimeout(() => {
+        radar.classList.add('hidden');
+        results.classList.remove('hidden');
+
+        results.innerHTML = `
+          <h3>📡 Descoperiri în jurul tău</h3>
+          <ul class="results-list">
+            <li>🧍 Andrei – Explorator urban <span>25 m</span></li>
+            <li>🎨 Club: Desen liber în parc <span>120 m</span></li>
+            <li>🏃 Club: Alergarea care te trezește <span>300 m</span></li>
+            <li>💡 Idee: Schimb de abilități locale</li>
+          </ul>
+          <p class="hint">(simulare Bluetooth / Wi-Fi Direct)</p>
+        `;
+      }, 2000);
+    };
+
+    clubsBtn.onclick = () => {
+      alert('🎲 Cluburi ExploreBaga – loteria cluburilor');
+    };
   </script>
 </body>
 </html>
