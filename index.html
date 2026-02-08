@@ -1,112 +1,168 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>ExploreBaga</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #c7f5c4, #e6ffe3);
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #2e7d32;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #256628;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #444;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="app">
-    <h1>🌍 ExploreBaga</h1>
 
-    <div class="card">
-      <p>Explorează oameni, cluburi și idei din jurul tău.</p>
-    </div>
-
-    <!-- RADAR -->
-    <div id="radar" class="radar hidden"></div>
-
-    <div class="card">
-      <button id="scanBtn">🔍 Explorează în jur</button>
-    </div>
-
-    <div class="card hidden" id="results"></div>
-
-    <div class="card">
-      <button id="clubsBtn">🎲 Cluburi ExploreBaga</button>
-    </div>
-
-    <!-- CARD EXPLOREBAGA -->
-    <div class="card explore-card">
-      <h3>💳 Card ExploreBaga</h3>
-
-      <p><strong>Explorator:</strong> Fafi</p>
-      <p><strong>Acces:</strong> Alimentare automate ExploreBaga</p>
-      <p><strong>Câștig:</strong> 50% din valoarea capsulelor introduse</p>
-
-      <p><strong>Sold curent:</strong> <span id="balance">0</span> Pai</p>
-
-      <div class="card-actions">
-        <button id="loadMachineBtn">📦 Introdu capsule în automat</button>
-      </div>
-    </div>
+  <!-- CARD EXPLORATOR -->
+  <div class="card">
+    <h2>💳 Card ExploreBaga</h2>
+    <p><strong>Explorator:</strong> Fafi</p>
+    <p><strong>Sold curent:</strong> <span id="sold">0</span> €</p>
   </div>
 
+  <!-- ALIMENTARE AUTOMAT -->
+  <div class="card">
+    <h3>📦 Alimentează automat</h3>
+
+    <label>Număr capsule introduse:</label>
+    <input type="number" id="capsuleInput" placeholder="ex: 100">
+
+    <button id="alimenteazaBtn">Introdu capsule</button>
+
+    <p class="small">
+      1 capsulă = 2 € <br>
+      Câștig explorator: 50% din valoare
+    </p>
+  </div>
+
+  <!-- ISTORIC -->
+  <div class="card">
+    <h3>📜 Istoric alimentări</h3>
+    <ul id="istoric"></ul>
+  </div>
+
+  <!-- PAI - EXPLICAȚIE + VIITOR -->
+  <div class="card">
+    <h3>🪙 Moneda Pai (VIITOR)</h3>
+    <p class="small">
+      În acest moment, toate câștigurile sunt în <strong>EURO</strong>.
+    </p>
+    <p class="small">
+      Moneda <strong>Pai</strong> va fi creată ulterior, exclusiv după
+      îndeplinirea activităților reale ale cluburilor ExploreBaga,
+      conform șabloanelor introduse de exploratori în automate.
+    </p>
+    <p class="small">
+      Pai nu este promisiune. Pai este <strong>rezultat</strong>.
+    </p>
+  </div>
+
+  <!-- STATUS ACTIVITĂȚI CLUB -->
+  <div class="card">
+    <h3>🏛️ Status activități club</h3>
+    <ul>
+      <li>Club Yoga – ⏳ neîndeplinit</li>
+      <li>Club Alergare – ⏳ neîndeplinit</li>
+      <li>Club Artă – ⏳ neîndeplinit</li>
+    </ul>
+  </div>
+
+  <!-- TERMENI SIMPLI -->
+  <div class="card">
+    <h3>📄 Reguli simple</h3>
+    <ul class="small">
+      <li>EURO = câștig real, instant</li>
+      <li>Exploratorul primește 50%</li>
+      <li>Cluburile trebuie să livreze activități reale</li>
+      <li>Pai apare doar după îndeplinire</li>
+      <li>Fără speculă, fără promisiuni</li>
+    </ul>
+  </div>
+
+  <!-- SCRIPT -->
   <script>
-    /* SERVICE WORKER */
-    if ('serviceWorker' in navigator &&
-        (location.protocol === 'https:' || location.hostname === 'localhost')) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
+    let sold = 0; // EURO
+    const pretCapsula = 2; // € per capsulă
 
-    /* RADAR + EXPLORARE */
-    const scanBtn = document.getElementById('scanBtn');
-    const results = document.getElementById('results');
-    const radar = document.getElementById('radar');
-    const clubsBtn = document.getElementById('clubsBtn');
+    const soldSpan = document.getElementById('sold');
+    const capsuleInput = document.getElementById('capsuleInput');
+    const alimenteazaBtn = document.getElementById('alimenteazaBtn');
+    const istoricUl = document.getElementById('istoric');
 
-    scanBtn.onclick = () => {
-      radar.classList.remove('hidden');
-      results.classList.add('hidden');
+    alimenteazaBtn.onclick = () => {
+      const capsule = Number(capsuleInput.value);
 
-      setTimeout(() => {
-        radar.classList.add('hidden');
-        results.classList.remove('hidden');
+      if (!capsule || capsule <= 0) {
+        alert('Introdu un număr valid de capsule');
+        return;
+      }
 
-        results.innerHTML = `
-          <h3>📡 Descoperiri în jurul tău</h3>
-          <ul class="results-list">
-            <li>🧍 Andrei – Explorator urban <span>25 m</span></li>
-            <li>🎨 Club: Desen liber în parc <span>120 m</span></li>
-            <li>🏃 Club: Alergarea care te trezește <span>300 m</span></li>
-          </ul>
-          <p class="hint">(simulare Bluetooth / Wi-Fi Direct)</p>
-        `;
-      }, 2000);
-    };
+      const valoare = capsule * pretCapsula;
+      const castig = valoare * 0.5;
 
-    clubsBtn.onclick = () => {
-      alert('🎲 Clubul zilei: Desen liber în parc');
-    };
+      sold += castig;
+      soldSpan.textContent = sold.toFixed(2);
 
-    /* CARD EXPLOREBAGA – PLATĂ INSTANT */
-    let balance = 0;
-
-    const balanceEl = document.getElementById('balance');
-    const loadMachineBtn = document.getElementById('loadMachineBtn');
-
-    loadMachineBtn.onclick = () => {
-      const capsules = 10;
-      const pricePerCapsule = 10;
-      const commissionRate = 0.5;
-
-      const totalValue = capsules * pricePerCapsule;
-      const payout = totalValue * commissionRate;
-
-      balance += payout;
-      balanceEl.textContent = balance.toFixed(2);
+      const li = document.createElement('li');
+      li.textContent =
+        `Capsule: ${capsule} | Valoare: ${valoare} € | Câștig: ${castig} €`;
+      istoricUl.appendChild(li);
 
       alert(
-        '📦 Automat alimentat!\n\n' +
-        `Capsule: ${capsules}\n` +
-        `Valoare: ${totalValue} Pai\n` +
-        `💳 Câștig instant: ${payout} Pai`
+        `📦 Automat alimentat!\n\n` +
+        `Capsule: ${capsule}\n` +
+        `Valoare: ${valoare} €\n` +
+        `💳 Câștig pe card: ${castig} €`
       );
+
+      capsuleInput.value = '';
     };
   </script>
+
 </body>
 </html>
