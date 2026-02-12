@@ -6,39 +6,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    :root {
+      --pink: #ff5bbd;
+      --orange: #ff9a4a;
+      --yellow: #ffe066;
+      --green: #5bff9e;
+      --blue: #57c5ff;
+      --purple: #8a7bff;
+      --ink: #2b2b3a;
+      --card: #ffffff;
+      --shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #c7f5c4, #e6ffe3);
-      padding: 20px;
+      margin: 0;
+      font-family: "Comic Neue", "Baloo 2", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,255,255,0.7), transparent 35%),
+        radial-gradient(circle at 90% 10%, rgba(255,255,255,0.6), transparent 35%),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.6), transparent 40%),
+        linear-gradient(135deg, var(--pink), var(--orange), var(--yellow), var(--green), var(--blue), var(--purple));
+      min-height: 100vh;
+      padding: 24px 18px 80px;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
     }
 
     .card {
-      background: white;
-      border-radius: 12px;
+      background: var(--card);
+      border-radius: 18px;
       padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 520px;
+      box-shadow: var(--shadow);
+    }
+
+    h2, h3 {
+      margin: 0 0 12px 0;
     }
 
     button {
       padding: 10px 16px;
       border: none;
-      border-radius: 8px;
-      background: #2e7d32;
+      border-radius: 10px;
+      background: #1f9d55;
       color: white;
       font-size: 16px;
       cursor: pointer;
       margin-top: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 6px 14px rgba(31,157,85,0.25);
     }
 
-    input, select {
-      padding: 8px;
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(31,157,85,0.3);
+    }
+
+    button.secondary {
+      background: #ff8a3d;
+      box-shadow: 0 6px 14px rgba(255,138,61,0.25);
+    }
+
+    button.ghost {
+      background: #f1f3ff;
+      color: #4b4d6b;
+      box-shadow: none;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
       font-size: 16px;
       width: 100%;
       margin-top: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      border-radius: 10px;
+      border: 1px solid #d9d9e3;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
     }
 
     ul {
@@ -47,60 +103,272 @@
 
     .small {
       font-size: 14px;
-      color: #444;
+      color: #4b4d6b;
+    }
+
+    .multi-hero {
+      display: grid;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f8f1ff;
+      color: #6b3bbd;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .multi-screen {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .multi-screen.active {
+      display: grid;
+      gap: 16px;
+    }
+
+    .multi-controls {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      align-items: end;
+    }
+
+    .control-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .control-inline {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .control-inline button {
+      margin-top: 0;
+    }
+
+    .workspace {
+      background: rgba(255,255,255,0.9);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 360px;
+      display: grid;
+      gap: 12px;
+      border: 2px dashed rgba(255,255,255,0.6);
+    }
+
+    .workspace.grid {
+      grid-template-columns: repeat(var(--cols, 2), minmax(160px, 1fr));
+      grid-template-rows: repeat(var(--rows, 2), minmax(160px, 1fr));
+    }
+
+    .workspace.left-right {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: minmax(160px, 1fr);
+    }
+
+    .workspace.top-bottom {
+      grid-template-rows: 1fr 1fr;
+      grid-auto-columns: minmax(160px, 1fr);
+      grid-auto-flow: column;
+    }
+
+    .window {
+      background: white;
+      border-radius: 16px;
+      border: 2px solid rgba(0,0,0,0.05);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 160px;
+      min-width: 160px;
+      overflow: auto;
+      resize: both;
+    }
+
+    .window-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: linear-gradient(120deg, #fff4d6, #e4f9ff);
+      border-radius: 14px 14px 0 0;
+    }
+
+    .window-title {
+      font-weight: 700;
+    }
+
+    .window-header select {
+      margin-top: 0;
+      width: auto;
+      min-width: 150px;
+    }
+
+    .window-body {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .template-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    .template-card {
+      border-radius: 12px;
+      padding: 10px;
+      background: #f7f6ff;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .template-card:hover {
+      border-color: #9a84ff;
+      transform: translateY(-2px);
+    }
+
+    .media-preview {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      max-height: 200px;
+      object-fit: cover;
+    }
+
+    .map-preview {
+      border-radius: 12px;
+      background: linear-gradient(135deg, #d4ffeb, #cbe9ff);
+      padding: 16px;
+      display: grid;
+      gap: 6px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px 12px 60px;
+      }
+
+      .window {
+        resize: vertical;
+      }
     }
   </style>
 </head>
 
 <body>
+  <div class="page">
+    <!-- EXPLORATOR (ADAUGAT) -->
+    <div class="card">
+      <h3>👤 Explorator</h3>
 
-  <!-- EXPLORATOR (ADAUGAT) -->
-  <div class="card">
-    <h3>👤 Explorator</h3>
+      <select id="exploratorSelect"></select>
 
-    <select id="exploratorSelect"></select>
+      <input type="text" id="exploratorNou" placeholder="explorator nou">
 
-    <input type="text" id="exploratorNou" placeholder="explorator nou">
+      <button id="selectExploratorBtn">Selectează explorator</button>
+    </div>
 
-    <button id="selectExploratorBtn">Selectează explorator</button>
-  </div>
+    <!-- CARD VECHI -->
+    <div class="card">
+      <h2>💳 Card ExploreBaga</h2>
+      <p><strong>Explorator:</strong> <span id="exploratorNume">—</span></p>
+      <p><strong>Sold curent:</strong> <span id="sold">0</span> €</p>
+    </div>
 
-  <!-- CARD VECHI -->
-  <div class="card">
-    <h2>💳 Card ExploreBaga</h2>
-    <p><strong>Explorator:</strong> <span id="exploratorNume">—</span></p>
-    <p><strong>Sold curent:</strong> <span id="sold">0</span> €</p>
-  </div>
+    <!-- ALIMENTARE VECHE -->
+    <div class="card">
+      <h3>📦 Alimentează automat</h3>
 
-  <!-- ALIMENTARE VECHE -->
-  <div class="card">
-    <h3>📦 Alimentează automat</h3>
+      <label>Număr capsule:</label>
+      <input type="number" id="capsuleInput" placeholder="ex: 100">
 
-    <label>Număr capsule:</label>
-    <input type="number" id="capsuleInput" placeholder="ex: 100">
+      <button id="alimenteazaBtn">Introdu capsule</button>
 
-    <button id="alimenteazaBtn">Introdu capsule</button>
+      <p class="small">
+        1 capsulă = 2 € <br>
+        Câștig explorator: 50%
+      </p>
+    </div>
 
-    <p class="small">
-      1 capsulă = 2 € <br>
-      Câștig explorator: 50%
-    </p>
-  </div>
+    <!-- ISTORIC VECHI -->
+    <div class="card">
+      <h3>📝 Istoric alimentări</h3>
+      <ul id="istoric"></ul>
+    </div>
 
-  <!-- ISTORIC VECHI -->
-  <div class="card">
-    <h3>📜 Istoric alimentări</h3>
-    <ul id="istoric"></ul>
-  </div>
+    <!-- INFO PAI -->
+    <div class="card">
+      <h3>🪙 Moneda Pai (VIITOR)</h3>
+      <p class="small">
+        Câștigurile sunt în <strong>EURO</strong>.
+        Pai va fi creată doar după îndeplinirea activităților reale ale cluburilor.
+      </p>
+      <p class="small"><strong>Pai = rezultat, nu promisiune.</strong></p>
+    </div>
 
-  <!-- INFO PAI -->
-  <div class="card">
-    <h3>🪙 Moneda Pai (VIITOR)</h3>
-    <p class="small">
-      Câștigurile sunt în <strong>EURO</strong>.  
-      Pai va fi creată doar după îndeplinirea activităților reale ale cluburilor.
-    </p>
-    <p class="small"><strong>Pai = rezultat, nu promisiune.</strong></p>
+    <!-- MULTI-ECRAN -->
+    <div class="card">
+      <div class="multi-hero">
+        <span class="badge">🌈 Multi-Ecran ExploreBaga</span>
+        <h3>Un singur ecran poate deveni mai multe lumi</h3>
+        <p class="small">
+          Creează spații paralele pentru idei, imagini, sunet, video și hărți.
+          Compară, amestecă și inventează liber — fără control, doar explorare.
+        </p>
+        <button id="multiToggleBtn" class="secondary">Multi-Ecran</button>
+      </div>
+
+      <div id="multiScreen" class="multi-screen">
+        <div class="multi-controls">
+          <div class="control-row">
+            <label>Layout</label>
+            <select id="layoutSelect">
+              <option value="grid">Grid flexibil</option>
+              <option value="left-right">Stânga - dreapta</option>
+              <option value="top-bottom">Sus - jos</option>
+            </select>
+          </div>
+          <div class="control-row">
+            <label>Număr ferestre</label>
+            <input id="windowCount" type="number" min="2" max="12" value="3">
+          </div>
+          <div class="control-row">
+            <label>Acțiuni rapide</label>
+            <div class="control-inline">
+              <button id="addWindowBtn" class="ghost">Adaugă</button>
+              <button id="removeWindowBtn" class="ghost">Elimină</button>
+            </div>
+          </div>
+          <div class="control-row">
+            <label>Configurație</label>
+            <div class="control-inline">
+              <button id="saveLayoutBtn">Salvează</button>
+              <button id="loadLayoutBtn" class="ghost">Încarcă</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="workspace" class="workspace grid"></div>
+        <p class="small">
+          Trage de colțul fiecărei ferestre pentru redimensionare. Fiecare fereastră
+          poate avea propriul conținut și îți păstrează ideile între sesiuni.
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- SCRIPT -->
@@ -195,7 +463,322 @@
 
       capsuleInput.value = '';
     };
-  </script>
 
+    // MULTI-ECRAN
+    const multiToggleBtn = document.getElementById('multiToggleBtn');
+    const multiScreen = document.getElementById('multiScreen');
+    const layoutSelect = document.getElementById('layoutSelect');
+    const windowCountInput = document.getElementById('windowCount');
+    const addWindowBtn = document.getElementById('addWindowBtn');
+    const removeWindowBtn = document.getElementById('removeWindowBtn');
+    const saveLayoutBtn = document.getElementById('saveLayoutBtn');
+    const loadLayoutBtn = document.getElementById('loadLayoutBtn');
+    const workspace = document.getElementById('workspace');
+
+    const defaultWindow = () => ({
+      id: `w_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+      type: 'text',
+      data: {
+        text: '',
+        url: '',
+        club: '',
+        notes: '',
+        location: '',
+        coords: ''
+      }
+    });
+
+    let multiState = {
+      layout: 'grid',
+      windows: [defaultWindow(), defaultWindow(), defaultWindow()]
+    };
+
+    function saveMultiState() {
+      localStorage.setItem('explorebaga_multiscreen', JSON.stringify(multiState));
+    }
+
+    function loadMultiState() {
+      const saved = localStorage.getItem('explorebaga_multiscreen');
+      if (saved) {
+        try {
+          multiState = JSON.parse(saved);
+        } catch (err) {
+          multiState = {
+            layout: 'grid',
+            windows: [defaultWindow(), defaultWindow(), defaultWindow()]
+          };
+        }
+      }
+    }
+
+    function ensureWindowCount(count) {
+      const safeCount = Math.max(2, Math.min(12, count));
+      while (multiState.windows.length < safeCount) {
+        multiState.windows.push(defaultWindow());
+      }
+      if (multiState.windows.length > safeCount) {
+        multiState.windows = multiState.windows.slice(0, safeCount);
+      }
+      windowCountInput.value = safeCount;
+    }
+
+    function updateWorkspaceLayout() {
+      workspace.classList.remove('grid', 'left-right', 'top-bottom');
+      workspace.classList.add(multiState.layout);
+
+      if (multiState.layout === 'grid') {
+        const count = multiState.windows.length;
+        const cols = Math.ceil(Math.sqrt(count));
+        const rows = Math.ceil(count / cols);
+        workspace.style.setProperty('--cols', cols);
+        workspace.style.setProperty('--rows', rows);
+      }
+    }
+
+    function renderTemplateCards(container, win) {
+      const templates = [
+        { id: 'spirale', label: 'Spirale curcubeu' },
+        { id: 'insule', label: 'Insule creative' },
+        { id: 'puls', label: 'Puls explorator' }
+      ];
+      const grid = document.createElement('div');
+      grid.className = 'template-grid';
+
+      templates.forEach(tpl => {
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.innerHTML = `<strong>${tpl.label}</strong>`;
+        card.onclick = () => {
+          win.data.text = `Șablon selectat: ${tpl.label}`;
+          renderWorkspace();
+        };
+        grid.appendChild(card);
+      });
+
+      container.appendChild(grid);
+      const note = document.createElement('p');
+      note.className = 'small';
+      note.textContent = win.data.text || 'Alege un șablon de desen.';
+      container.appendChild(note);
+    }
+
+    function renderMediaControls(container, win, typeLabel, accept) {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = `Link ${typeLabel} (opțional)`;
+      input.value = win.data.url || '';
+      input.oninput = () => {
+        win.data.url = input.value.trim();
+        renderWorkspace();
+      };
+      container.appendChild(input);
+
+      const file = document.createElement('input');
+      file.type = 'file';
+      file.accept = accept;
+      file.onchange = (e) => {
+        const selected = e.target.files[0];
+        if (selected) {
+          win.data.url = URL.createObjectURL(selected);
+          renderWorkspace();
+        }
+      };
+      container.appendChild(file);
+    }
+
+    function renderWindowContent(win, body) {
+      body.innerHTML = '';
+
+      if (win.type === 'template') {
+        renderTemplateCards(body, win);
+        return;
+      }
+
+      if (win.type === 'image') {
+        renderMediaControls(body, win, 'imagine', 'image/*');
+        if (win.data.url) {
+          const img = document.createElement('img');
+          img.src = win.data.url;
+          img.alt = 'Preview imagine';
+          img.className = 'media-preview';
+          body.appendChild(img);
+        }
+        return;
+      }
+
+      if (win.type === 'video') {
+        renderMediaControls(body, win, 'video', 'video/*');
+        if (win.data.url) {
+          const video = document.createElement('video');
+          video.src = win.data.url;
+          video.controls = true;
+          video.className = 'media-preview';
+          body.appendChild(video);
+        }
+        return;
+      }
+
+      if (win.type === 'audio') {
+        renderMediaControls(body, win, 'audio', 'audio/*');
+        if (win.data.url) {
+          const audio = document.createElement('audio');
+          audio.src = win.data.url;
+          audio.controls = true;
+          body.appendChild(audio);
+        }
+        return;
+      }
+
+      if (win.type === 'club') {
+        const input = document.createElement('input');
+        input.placeholder = 'Club ExploreBaga';
+        input.value = win.data.club || '';
+        input.oninput = () => {
+          win.data.club = input.value;
+        };
+        body.appendChild(input);
+
+        const notes = document.createElement('textarea');
+        notes.placeholder = 'Idei, activități, pași următori...';
+        notes.value = win.data.notes || '';
+        notes.oninput = () => {
+          win.data.notes = notes.value;
+        };
+        body.appendChild(notes);
+        return;
+      }
+
+      if (win.type === 'map') {
+        const location = document.createElement('input');
+        location.placeholder = 'Locație (ex: Parc, oraș, munte)';
+        location.value = win.data.location || '';
+        location.oninput = () => {
+          win.data.location = location.value;
+          renderWorkspace();
+        };
+        body.appendChild(location);
+
+        const coords = document.createElement('input');
+        coords.placeholder = 'Coordonate (opțional)';
+        coords.value = win.data.coords || '';
+        coords.oninput = () => {
+          win.data.coords = coords.value;
+          renderWorkspace();
+        };
+        body.appendChild(coords);
+
+        const preview = document.createElement('div');
+        preview.className = 'map-preview';
+        preview.innerHTML = `
+          <div>📍 ${win.data.location || 'Locație imaginară'}</div>
+          <div class="small">${win.data.coords || 'Coordonate libere'}</div>
+        `;
+        body.appendChild(preview);
+        return;
+      }
+
+      // default: text
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = 'Scrie idei, scenarii, note rapide...';
+      textarea.value = win.data.text || '';
+      textarea.oninput = () => {
+        win.data.text = textarea.value;
+      };
+      body.appendChild(textarea);
+    }
+
+    function renderWorkspace() {
+      updateWorkspaceLayout();
+      workspace.innerHTML = '';
+
+      multiState.windows.forEach((win, index) => {
+        const windowEl = document.createElement('div');
+        windowEl.className = 'window';
+
+        const header = document.createElement('div');
+        header.className = 'window-header';
+
+        const title = document.createElement('span');
+        title.className = 'window-title';
+        title.textContent = `Fereastra ${index + 1}`;
+        header.appendChild(title);
+
+        const select = document.createElement('select');
+        const options = [
+          { value: 'template', label: 'Șabloane de desen' },
+          { value: 'image', label: 'Imagine' },
+          { value: 'video', label: 'Video' },
+          { value: 'audio', label: 'Sunet' },
+          { value: 'text', label: 'Text / idei' },
+          { value: 'club', label: 'Club ExploreBaga' },
+          { value: 'map', label: 'Hartă / locații' }
+        ];
+        options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt.value;
+          option.textContent = opt.label;
+          if (opt.value === win.type) option.selected = true;
+          select.appendChild(option);
+        });
+        select.onchange = () => {
+          win.type = select.value;
+          renderWorkspace();
+        };
+        header.appendChild(select);
+
+        const body = document.createElement('div');
+        body.className = 'window-body';
+        renderWindowContent(win, body);
+
+        windowEl.appendChild(header);
+        windowEl.appendChild(body);
+        workspace.appendChild(windowEl);
+      });
+    }
+
+    multiToggleBtn.onclick = () => {
+      multiScreen.classList.toggle('active');
+      if (multiScreen.classList.contains('active')) {
+        renderWorkspace();
+      }
+    };
+
+    layoutSelect.onchange = () => {
+      multiState.layout = layoutSelect.value;
+      renderWorkspace();
+    };
+
+    windowCountInput.onchange = () => {
+      ensureWindowCount(Number(windowCountInput.value));
+      renderWorkspace();
+    };
+
+    addWindowBtn.onclick = () => {
+      ensureWindowCount(multiState.windows.length + 1);
+      renderWorkspace();
+    };
+
+    removeWindowBtn.onclick = () => {
+      ensureWindowCount(multiState.windows.length - 1);
+      renderWorkspace();
+    };
+
+    saveLayoutBtn.onclick = () => {
+      saveMultiState();
+      alert('Configurația multi-ecran a fost salvată.');
+    };
+
+    loadLayoutBtn.onclick = () => {
+      loadMultiState();
+      layoutSelect.value = multiState.layout;
+      ensureWindowCount(multiState.windows.length);
+      renderWorkspace();
+    };
+
+    // init
+    loadMultiState();
+    layoutSelect.value = multiState.layout;
+    ensureWindowCount(multiState.windows.length);
+  </script>
 </body>
 </html>
